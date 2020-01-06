@@ -39,6 +39,12 @@ public class MainController {
                 nullSafe(otherTestServiceMethod.testMethod1(no)));
     }
 
+    @GetMapping("example4/{no}")
+    public Collection<String> getExample4(@PathVariable String no) {
+        return List.of("Example3 OK",
+                nullSafe(otherTestServiceMethod.testMethod2(no)));
+    }
+
     private String nullSafe(String test_me) {
         return test_me == null ? "null" : test_me;
     }

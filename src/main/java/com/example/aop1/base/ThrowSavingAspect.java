@@ -19,16 +19,16 @@ public class ThrowSavingAspect {
 
     private static final Logger log = LoggerFactory.getLogger(ThrowSavingAspect.class);
 
-    @Around("@annotation(com.example.aop1.base.ThrowSafe) && target(throwSavable)")
-    public Object throwSave(ProceedingJoinPoint point, ThrowSavable throwSavable) {
+    @Around("@annotation(throwSafe) && target(throwSavable)")
+    public Object throwSave(ProceedingJoinPoint point, ThrowSafe throwSafe, ThrowSavable throwSavable) {
         Object result = null;
-        Method method = null;
         try {
-            method = ((MethodSignature) point.getSignature()).getMethod();
             result = point.proceed();
         } catch (Throwable ex) {
             try {
+                Method method = ((MethodSignature) point.getSignature()).getMethod();
                 requireNonNull(method, "Method cannot be null");
+
                 throwSavable.handleException(ex, method, point.getArgs());
             } catch (Throwable exx) {
                 log.error("Exception boom", exx);

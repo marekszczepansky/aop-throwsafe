@@ -2,7 +2,7 @@ package com.example.aop1.services;
 
 import com.example.aop1.bean.ThrowSafeWith;
 import com.example.aop1.bean.ThrowSavableWithExample;
-import com.example.aop1.meta.ThrowSafeWithPredefinedExample;
+import com.example.aop1.meta.ThrowSafeWithExample;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,7 +13,7 @@ public class OtherTestServiceMethod {
         return "Method test service OK " + Long.parseLong(testArg);
     }
 
-    @ThrowSafeWithPredefinedExample
+    @ThrowSafeWithExample
     public String testMethod2(String testArg) {
         return "Method meta annotation test service OK " + Long.parseLong(testArg);
     }

@@ -1,6 +1,7 @@
 package com.example.aop1.bean;
 
 
+import com.example.aop1.base.ThrowSafe;
 import com.example.aop1.base.ThrowSavingAspect;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -25,19 +26,20 @@ class ThrowSavingWithAspect {
         this.applicationContext = applicationContext;
     }
 
-    @Around("@annotation(com.example.aop1.base.ThrowSafe) && @target(throwSaveAt) && target(target)")
-    public Object throwSave(ProceedingJoinPoint point, ThrowSafeWith throwSaveAt, Object target) {
+    @Around("@annotation(throwSafe) && @target(throwSafeWith) && target(target)")
+    public Object throwSave(ProceedingJoinPoint point, ThrowSafe throwSafe, ThrowSafeWith throwSafeWith, Object target) {
         Object result = null;
-        Method method = null;
         try {
-            method = ((MethodSignature) point.getSignature()).getMethod();
             result = point.proceed();
         } catch (Throwable ex) {
             try {
+                Method method = ((MethodSignature) point.getSignature()).getMethod();
                 requireNonNull(method, "Method cannot be null");
-                requireNonNull(throwSaveAt.value(), "@ThrowSafeWith value cannot be null");
-                final ThrowSavableWith throwSavableBean = applicationContext.getBean(throwSaveAt.value());
-                throwSavableBean.handleException(ex, target, method, point.getArgs());
+                requireNonNull(throwSafeWith.value(), "@ThrowSafeWith value cannot be null");
+
+                applicationContext
+                        .getBean(throwSafeWith.value())
+                        .handleException(ex, target, method, point.getArgs());
             } catch (Throwable exx) {
                 log.error("Exception boom", exx);
             }

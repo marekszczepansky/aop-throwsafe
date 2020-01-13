@@ -11,9 +11,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 @Service
-public class TestService implements ThrowSavable {
+public class BaseTestService implements ThrowSavable {
 
-    private static final Logger log = LoggerFactory.getLogger(TestService.class);
+    private static final Logger log = LoggerFactory.getLogger(BaseTestService.class);
 
     @ThrowSafe
     public String serviceMethod1(String test_me) {

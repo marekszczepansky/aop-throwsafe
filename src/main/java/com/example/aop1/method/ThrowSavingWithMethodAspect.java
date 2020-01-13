@@ -30,17 +30,18 @@ class ThrowSavingWithMethodAspect {
     @Around("@annotation(throwSafeWith) && target(target)")
     public Object throwSave(ProceedingJoinPoint point, ThrowSafeWith throwSafeWith, Object target) {
         Object result = null;
-        Method method = null;
         try {
-            method = ((MethodSignature) point.getSignature()).getMethod();
             result = point.proceed();
         } catch (Throwable ex) {
             try {
                 log.info("--==@ThrowSaveWith at method used==--");
+                Method method = ((MethodSignature) point.getSignature()).getMethod();
                 requireNonNull(method, "Method cannot be null");
                 requireNonNull(throwSafeWith.value(), "@ThrowSafeWith value cannot be null");
-                final ThrowSavableWith throwSavableBean = applicationContext.getBean(throwSafeWith.value());
-                throwSavableBean.handleException(ex, target, method, point.getArgs());
+
+                applicationContext
+                        .getBean(throwSafeWith.value())
+                        .handleException(ex, target, method, point.getArgs());
             } catch (Throwable exx) {
                 log.error("Exception boom", exx);
             }

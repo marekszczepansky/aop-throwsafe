@@ -12,12 +12,12 @@ This is test application where you can find all implementation working. Applicat
 - http://localhost:8081/example3/1234
 - http://localhost:8081/example4/1234
 
-Last ura part `1234` is an url variable, which is parsed as a long number. To check exception handling just replace `1234` with not valid 
+The last url part `1234` is an url variable, which is parsed as a long number. To check exception handling just replace `1234` with not valid 
 long number eg. `12w34`.
 
 # Implementation examples
 
-## Interface implementation
+## Handling an exception by own implemented interface method
 
  This implementation requires your bean to implement interface `ThrowSavable` and a method to be annotated with `@ThrowSafe`
  
@@ -57,12 +57,12 @@ public class ThrowSavingAspect {
 }
 ```
 
-## Handling exceptions by bean associated with a bean type 
+## Handling exceptions by a bean associated with a bean type 
 
 This and following examples uses a bean of developer's choice to handle an exception. 
 This makes handler implementation loosely coupled to its usage.
 
-Your bean don't need to implement interface exception handling in favor of annotate class with `@ThrowSafeWith`.
+Your bean don't need to implement an interface in favor of annotate class with `@ThrowSafeWith`.
 An exception handling bean have to implement interface `ThrowSaveableWith`.
 A method have to be annotated with  `@ThrowSafe`.
 
@@ -108,9 +108,9 @@ class ThrowSavingWithAspect {
 }
 ```
 
-## Handling exceptions by bean associated with a method
+## Handling exceptions by a bean associated with a method
 
-You have to annotate each method with `@ThrowSafeWith` and define a bean handling an exception
+You have to annotate each method with `@ThrowSafeWith` and provide a bean handling an exception
 
 ```java
 @Service
@@ -126,10 +126,27 @@ To test it you need to go to link: http://localhost:8081/example3/1234
 
 Aspect definition located in component [ThrowSavingWithMethodAspect](src/main/java/com/example/aop1/method/ThrowSavingWithMethodAspect.java)  
 
-## Handling exceptions by bean associated with a method by meta-annotation
+```java
+@Aspect
+@Component
+class ThrowSavingWithMethodAspect {
+    @Around("@annotation(throwSafeWith) && target(target)")
+    public Object throwSave(ProceedingJoinPoint point, ThrowSafeWith throwSafeWith, Object target) {
+        Object result = null;
+        try {
+            result = point.proceed();
+        } catch (Throwable ex) {
+// exception handling
+        }
+        return result;
+    }
+}
+```
+
+## Handling exceptions by a bean associated with a method by meta-annotation
 
 Annotating each method with an annotation requiring a bean type parameter may be error prone. You can enclose this definition
-into mata annotation defined for the error handling bean. 
+into meta annotation defined for the error handling bean. 
 
 ```java
 @Retention(RetentionPolicy.RUNTIME)
@@ -152,3 +169,23 @@ public class OtherTestServiceMethod {
 To test it you need to go to link: http://localhost:8081/example4/1234
 
 Aspect definition located in component [ThrowSavingWithMetaAspect](src/main/java/com/example/aop1/meta/ThrowSavingWithMetaAspect.java)  
+
+```java
+@Aspect
+@Component
+class ThrowSavingWithMetaAspect {
+    @Pointcut("execution(@(@com.example.aop1.bean.ThrowSafeWith *) * *(..))")
+    public void throwSafeMeta(){}
+
+    @Around("throwSafeMeta() && target(target)")
+    public Object throwSave(ProceedingJoinPoint point, Object target) {
+        Object result = null;
+        try {
+            result = point.proceed();
+        } catch (Throwable ex) {
+// exception handling
+        }
+        return result;
+    }
+}
+```
